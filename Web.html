@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=auto">
+    <title>My Expense Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background-color: powderblue;
+            padding: 20px;
+        }
+        .card {
+            background: #fff;
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid #333;
+            padding: 20px;
+            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0b5ed7;
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+        .category-section {
+            margin-bottom: 20px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #f9f9f9;
+        }
+        .category-header {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .category-total {
+            font-size: 14px;
+            color: #0b5ed7;
+        }
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .controls input[type="text"],
+        .controls input[type="number"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .controls button {
+            padding: 8px 12px;
+            background: #0d6efd;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .controls button:hover {
+            background: #0b5ed7;
+        }
+        ul.items-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        ul.items-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        .item-info input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+        .item-name {
+            flex: 1;
+        }
+        .item-amount {
+            background: #198754;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 12px;
+            min-width: 50px;
+            text-align: center;
+        }
+        .item-remove {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .item-remove:hover {
+            background: #c82333;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        #submitBtn {
+            background: #198754;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        #submitBtn:hover:not(:disabled) {
+            background: #157347;
+        }
+        #submitBtn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #resetBtn {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        #resetBtn:hover {
+            background: #c82333;
+        }
+        #message {
+            font-weight: 700;
+            text-align: center;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            min-height: 20px;
+            font-size: 14px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+    </style>
+</head>
+
+
+
+<body>
+    <div class="card" role="region" aria-label="Expense tracker">
+        <h1>My Expense Tracker</h1>
+
+        <!-- Daily Bills Section -->
+        <div class="category-section">
+            <div class="category-header">
+                Daily Bills
+                <span class="category-total" id="total-daily">₹0</span>
+            </div>
+            <div class="controls">
+                <input type="text" class="item-input" data-category="daily" placeholder="Item (e.g. Electricity)" aria-label="daily bills item">
+                <input type="number" class="amount-input" data-category="daily" placeholder="₹" min="0" step="0.01" aria-label="daily bills amount">
+                <button class="add-btn" data-category="daily">Add</button>
+            </div>
+            <ul class="items-list" id="list-daily"></ul>
+        </div>
+
+        <!-- Vehicle Section -->
+        <div class="category-section">
+            <div class="category-header">
+                Vehicle
+                <span class="category-total" id="total-vehicle">₹0</span>
+            </div>
+            <div class="controls">
+                <input type="text" class="item-input" data-category="vehicle" placeholder="Item (e.g. Fuel)" aria-label="vehicle item">
+                <input type="number" class="amount-input" data-category="vehicle" placeholder="₹" min="0" step="0.01" aria-label="vehicle amount">
+                <button class="add-btn" data-category="vehicle">Add</button>
+            </div>
+            <ul class="items-list" id="list-vehicle"></ul>
+        </div>
+
+        <!-- Meal Cost Section -->
+        <div class="category-section">
+            <div class="category-header">
+                Meal Cost
+                <span class="category-total" id="total-meal">₹0</span>
+            </div>
+            <div class="controls">
+                <input type="text" class="item-input" data-category="meal" placeholder="Item (e.g. Lunch)" aria-label="meal item">
+                <input type="number" class="amount-input" data-category="meal" placeholder="₹" min="0" step="0.01" aria-label="meal amount">
+                <button class="add-btn" data-category="meal">Add</button>
+            </div>
+            <ul class="items-list" id="list-meal"></ul>
+        </div>
+
+        <div class="actions">
+            <button id="submitBtn" disabled>Submit</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+
+        <div id="message" role="status"></div>
+    </div>
+
+    <script>
+        const categories = ['daily', 'vehicle', 'meal'];
+        const data = {
+            daily: [],
+            vehicle: [],
+            meal: []
+        };
+
+        function clearMessage() {
+            const msg = document.getElementById('message');
+            msg.textContent = '';
+            msg.className = '';
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = type;
+        }
+
+        function updateCategoryTotal(category) {
+            const total = data[category].reduce((sum, item) => sum + item.amount, 0);
+            document.getElementById(`total-${category}`).textContent = '₹' + total.toFixed(2);
+        }
+
+        function renderCategory(category) {
+            const list = document.getElementById(`list-${category}`);
+            list.innerHTML = '';
+            data[category].forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="item-info">
+                        <input type="checkbox" data-category="${category}" data-idx="${idx}">
+                        <span class="item-name">${item.name}</span>
+                    </div>
+                    <div class="item-amount">₹${item.amount.toFixed(2)}</div>
+                    <button class="item-remove" data-category="${category}" data-idx="${idx}">Remove</button>
+                `;
+                list.appendChild(li);
+            });
+            updateCategoryTotal(category);
+        }
+
+        function checkSubmitEnabled() {
+            const hasDaily = data.daily.length > 0;
+            const hasVehicle = data.vehicle.length > 0;
+            const hasMeal = data.meal.length > 0;
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = !(hasDaily && hasVehicle && hasMeal);
+        }
+
+        document.querySelectorAll('.add-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const category = btn.dataset.category;
+                const itemInput = document.querySelector(`.item-input[data-category="${category}"]`);
+                const amountInput = document.querySelector(`.amount-input[data-category="${category}"]`);
+                
+                const name = itemInput.value.trim();
+                const amount = parseFloat(amountInput.value);
+
+                clearMessage();
+
+                if (!name) {
+                    showMessage(`Please enter an item name for ${category}.`, 'error');
+                    return;
+                }
+                if (isNaN(amount) || amount < 0) {
+                    showMessage(`Please enter a valid amount for ${category}.`, 'error');
+                    return;
+                }
+
+                data[category].push({ name, amount });
+                renderCategory(category);
+                itemInput.value = '';
+                amountInput.value = '';
+                checkSubmitEnabled();
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('item-remove')) {
+                const category = e.target.dataset.category;
+                const idx = parseInt(e.target.dataset.idx);
+                data[category].splice(idx, 1);
+                renderCategory(category);
+                checkSubmitEnabled();
+                clearMessage();
+            }
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            const allItems = [
+                ...data.daily.map(i => ({ ...i, category: 'Daily Bills' })),
+                ...data.vehicle.map(i => ({ ...i, category: 'Vehicle' })),
+                ...data.meal.map(i => ({ ...i, category: 'Meal Cost' }))
+            ];
+
+            const total = allItems.reduce((sum, item) => sum + item.amount, 0);
+            const dailyTotal = data.daily.reduce((sum, i) => sum + i.amount, 0);
+            const vehicleTotal = data.vehicle.reduce((sum, i) => sum + i.amount, 0);
+            const mealTotal = data.meal.reduce((sum, i) => sum + i.amount, 0);
+
+            const summary = `
+✓ Daily Bills: ₹${dailyTotal.toFixed(2)} | 
+✓ Vehicle: ₹${vehicleTotal.toFixed(2)} | 
+✓ Meal Cost: ₹${mealTotal.toFixed(2)} | 
+━━━━━━━━━━━━━━━━
+Total Expense: ₹${total.toFixed(2)}
+            `.trim();
+
+            showMessage(summary, 'success');
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            categories.forEach(cat => {
+                data[cat] = [];
+                renderCategory(cat);
+            });
+            clearMessage();
+        });
+
+        // Allow Enter to add
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.target.classList.contains('item-input') || e.target.classList.contains('amount-input'))) {
+                const category = e.target.dataset.category;
+                document.querySelector(`.add-btn[data-category="${category}"]`).click();
+            }
+        });
+
+        // Initialize
+        categories.forEach(cat => renderCategory(cat));
+    </script>
+</body>
+</html>
