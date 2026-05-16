@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% -20%, #1a1a2e 0%, #000000 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
+    }
+
+    .glow-wrapper {
+      position: relative;
+    }
+
+    .glow-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -10%; left: -10%; right: -10%; bottom: -10%;
+      background: linear-gradient(-45deg, #007AFF, #FF007A, #7000FF);
+      background-size: 400% 400%;
+      animation: gradientAnim 15s ease infinite;
+      filter: blur(60px);
+      opacity: 0.5;
+      z-index: 0;
+      border-radius: 40px;
+    }
+
+    @keyframes gradientAnim {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .financial-card {
+      width: 360px;
+      min-height: 220px;
+      background: rgba(20, 20, 25, 0.65);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 32px;
+      padding: 32px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .financial-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at top right, rgba(0, 122, 255, 0.15), transparent 60%),
+                  radial-gradient(circle at bottom left, rgba(255, 0, 122, 0.1), transparent 60%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .title {
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      margin: 0 0 32px 0;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex: 1;
+      padding-bottom: 40px;
+    }
+
+    .stats-column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+    }
+
+    .balance-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .balance-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 8px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .balance-amount {
+      font-size: 46px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin: 0;
+      display: flex;
+      align-items: baseline;
+      background: linear-gradient(90deg, #ffffff, #d1d1d1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .balance-amount.expenses {
+      font-size: 32px;
+      background: linear-gradient(90deg, #FF9F0A, #FF453A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .currency {
+      font-size: 26px;
+      font-weight: 500;
+      margin-right: 6px;
+      -webkit-text-fill-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .balance-amount.expenses .currency {
+      font-size: 20px;
+      -webkit-text-fill-color: rgba(255, 159, 10, 0.6);
+    }
+
+    .add-data {
+      position: absolute;
+      bottom: 24px;
+      right: 28px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .add-data:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      width: 320px;
+      background: rgba(30, 30, 35, 0.85);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 28px;
+      padding: 32px;
+      color: white;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transform: translateY(30px) scale(0.95);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-content h3 {
+      margin: 0 0 24px 0;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .input-group input,
+    .input-group select {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 14px 16px;
+      color: white;
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.3s, background 0.3s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    
+    .input-group select {
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px top 50%;
+      background-size: 10px auto;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .input-group select option {
+      background: #1e1e24;
+      color: white;
+      padding: 10px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 32px;
+    }
+
+    .modal-btn {
+      height: 44px;
+      padding: 0 24px;
+      border-radius: 16px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+
+    .modal-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .modal-btn.primary {
+      background: linear-gradient(135deg, #007AFF, #0056CC);
+      box-shadow: 0 8px 16px rgba(0, 122, 255, 0.3);
+    }
+
+    .modal-btn.primary:hover {
+      background: linear-gradient(135deg, #0088FF, #0066E0);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 122, 255, 0.4);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="glow-wrapper">
+    <div class="financial-card">
+      <div class="title">Financial Report • <span id="live-datetime">Dec 25, 2026</span></div>
+      <div class="content">
+        <div class="stats-column">
+          <div class="balance-section">
+            <div class="balance-label">Current Money</div>
+            <div class="balance-amount"><span class="currency">₹</span><span id="current-balance">12,54,631</span></div>
+          </div>
+          <div class="balance-section">
+            <div class="balance-label">Total Expenses</div>
+            <div class="balance-amount expenses"><span class="currency">₹</span><span id="total-expenses">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="add-data" id="btn-add-custom">+ Add Expense</div>
+    </div>
+  </div>
+
+  <!-- Expense Modal -->
+  <div id="expense-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Add Expense</h3>
+      <div class="input-group">
+        <label>Amount (₹)</label>
+        <input type="number" id="expense-amount" placeholder="0.00" min="0" step="0.01">
+      </div>
+      <div class="input-group">
+        <label>Expense Type</label>
+        <select id="expense-type">
+          <option value="food">Food & Dining</option>
+          <option value="transport">Transportation</option>
+          <option value="groceries">Groceries</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="utilities">Utilities</option>
+          <option value="shopping">Shopping</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button id="cancel-expense" class="btn modal-btn">Cancel</button>
+        <button id="submit-expense" class="btn modal-btn primary">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentBalance = 1254631;
+    let totalExpenses = 0.0;
+
+    const btnAddCustom = document.getElementById('btn-add-custom');
+    const modal = document.getElementById('expense-modal');
+    const btnCancel = document.getElementById('cancel-expense');
+    const btnSubmit = document.getElementById('submit-expense');
+    const amountInput = document.getElementById('expense-amount');
+    const typeInput = document.getElementById('expense-type');
+
+    const currentBalanceEl = document.getElementById('current-balance');
+    const totalExpensesEl = document.getElementById('total-expenses');
+
+    function openModal() {
+      modal.classList.add('active');
+      amountInput.value = '';
+      setTimeout(() => amountInput.focus(), 100);
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+    }
+
+    btnAddCustom.addEventListener('click', openModal);
+    btnCancel.addEventListener('click', closeModal);
+
+    btnSubmit.addEventListener('click', () => {
+      const amount = parseFloat(amountInput.value);
+      const type = typeInput.value;
+
+      if (!isNaN(amount) && amount > 0) {
+        if (amount > currentBalance) {
+          alert("Expense exceeds current balance!");
+          return;
+        }
+
+        currentBalance -= amount;
+        totalExpenses += amount;
+
+        currentBalanceEl.textContent = currentBalance.toLocaleString('en-IN', { maximumFractionDigits: 1 });
+        totalExpensesEl.textContent = totalExpenses.toLocaleString('en-IN', { maximumFractionDigits: 1 });
+
+        console.log(`Added Expense: ₹${amount} for type: ${type}`);
+        closeModal();
+      } else {
+        alert("Please enter a valid positive amount");
+      }
+    });
+
+    // Close modal on outside click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Live Date and Time
+    function updateDateTime() {
+      const now = new Date();
+      const options = { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric', 
+        hour: 'numeric', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: true 
+      };
+      document.getElementById('live-datetime').textContent = now.toLocaleString('en-US', options);
+    }
+    
+    // Initial call and set interval
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+  </script>
+
+</body>
+</html>
